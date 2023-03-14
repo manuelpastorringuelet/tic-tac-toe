@@ -69,7 +69,8 @@ let turn = 0;
 let gameEndState = false;
 
 // we display on top the user whose turn is it, if a player won the game or if it was a draw.
-currentPlayerElement.textContent = `The current player is: ${players[0].name}`;
+const currentPlayerText = `The current player is: ${players[0].name}`;
+currentPlayerElement.textContent = currentPlayerText;
 
 // tracking the game from the initial state
 let gameState: Record<string, CellState> = {};
@@ -79,22 +80,39 @@ const winConditions = [
   ["1-0", "1-1", "1-2"],
   ["2-0", "2-1", "2-2"],
   ["0-0", "1-0", "2-0"],
-  ["1-0", "1-1", "1-2"],
+  ["0-1", "1-1", "1-2"],
   ["2-0", "2-1", "2-2"],
   ["0-0", "1-1", "2-2"],
   ["0-2", "1-1", "2-0"],
 ];
 
-function winOrNot() {
-  for (const winCondition in winConditions) {
-    return true;
+function didWin() {
+  for (const winCondition of winConditions) {
+    const [cell1, cell2, cell3] = winCondition.map((id) => gameState[id]);
+
+    const winner =
+      cell1.markedBy != null &&
+      cell2.markedBy != null &&
+      cell3.markedBy != null &&
+      cell1.markedBy == cell2.markedBy &&
+      cell2.markedBy == cell3.markedBy &&
+      cell3.markedBy == cell1.markedBy;
+
+    if (winner) {
+      return true;
+      displayWinner();
+    }
   }
-  return false;
 }
-winOrNot();
 
 // add some styling to the grid-container
 gameGrid?.classList.add(...gridStyling);
+
+// create function that displays a congratulatory message to the winner
+function displayWinner() {
+  const winMessage = `You won ${players[turn].name}, congratulations!!`;
+  currentPlayerElement.textContent = winMessage;
+}
 
 // create a function that will create a grid
 function makeMyGrid() {
@@ -139,6 +157,13 @@ function makeMyGrid() {
             cell.innerHTML = `<div class="flex justify-center items-center h-full"><p class="text-5xl">${currentPlayer.symbol}</p></div>`;
 
             // bring the function for checking win condition
+            const gameWinner = didWin();
+
+            if (gameWinner) {
+              displayWinner();
+              gameEndState = true;
+              return;
+            }
 
             // go to the next turn, and one can always wrap around
             turn = (turn + 1) % players.length;
@@ -148,7 +173,8 @@ function makeMyGrid() {
             currentPlayerElement.textContent = `The current player is: ${nextPlayer.name}`;
 
             resetButton.addEventListener("click", () => {
-              cell.innerHTML = "";
+              resetGrid();
+              makeMyGrid();
             });
           }
         }
@@ -156,6 +182,17 @@ function makeMyGrid() {
       });
     }
   }
+}
+
+function resetGrid() {
+  /* while (gameGrid.lastChild) {
+    gameGrid.removeChild(gameGrid.lastChild);
+  } */
+
+  gameGrid.innerHTML = "";
+  gameEndState = false;
+  turn = 0;
+  currentPlayerElement.textContent = currentPlayerText;
 }
 
 // call the function to create the grid
