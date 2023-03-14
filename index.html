@@ -4,19 +4,28 @@
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tic Tac Toe</title>
+    <title>tic-tac-toe</title>
   </head>
-  <body>
-    <h1 class="text-3xl text-red-400 text-center p-4">Tic Tac Toe!</h1>
-    <div class="flex flex-col items-center gap-4">
-      <p id="current-player"></p>
+  <body class="flex flex-col items-center justify-center">
+    <h1 class="text-[clamp(20px,8vw,50px)] text-retro-purple text-center p-4">
+      tic-tac-toe
+    </h1>
+    <div class="flex flex-col items-center gap-8">
+      <div class="flex w-full justify-between items-center gap-2">
+        <p id="current-player" class="text-sm text-neutral-800"></p>
+        <button
+          id="reset-button"
+          class="text-sm bg-retro-yellow-200 text-md text-white rounded-full px-4 py-1 hover:bg-retro-yellow-300 text-"
+        >
+          new<br />
+          game
+        </button>
+      </div>
       <div id="grid-container"></div>
-      <button
-        id="reset-button"
-        class="bg-purple-500 text-white rounded-md px-8 py-2 hover:bg-purple-800"
-      >
-        reset
-      </button>
+      <div
+        class="flex justify-between items-center w-full gap-5"
+        id="score-players"
+      ></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

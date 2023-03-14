@@ -6,7 +6,7 @@ type Coordinates = [number, number];
 // 2. type for player: name | symbol | score
 type Player = {
   name: string;
-  symbol: "x" | "o"; // union type
+  symbol: "X" | "O"; // union type
   score: number;
 };
 
@@ -31,16 +31,31 @@ function idToCoord(id: `${number}-${number}`): Coordinates {
 const gridSize = 3;
 
 // create an array of grid cell styles
-const gridCellStyling = ["aspect-square", "bg-green-200"];
+const gridCellStyling = [
+  "aspect-square",
+  "bg-neutral-100",
+  "hover:bg-neutral-200",
+  "active:bg-neutral-300",
+];
 
 //create an array of grid-container styles
 const gridStyling = [
   "grid",
   "grid-cols-3",
-  "bg-neutral-900",
+  "bg-retro-purple",
+  "border-4",
+  "border-retro-purple",
   "gap-1",
-  "w-2/3",
-  "max-w-[480px]",
+  "w-full",
+  "w-[clamp(150px,90vw,360px)]",
+];
+
+//create an array of player info styles
+const playerInfoStyling = [
+  "text-xs",
+  "rounded-full",
+  "text-neutral-400",
+  "text-justify",
 ];
 
 // grab my grid-container from the DOM
@@ -51,13 +66,15 @@ const currentPlayerElement = document.getElementById(
   "current-player"
 ) as Element;
 
+const currentScorePlayers = document.getElementById("score-players") as Element;
+
 // grab my button
 const resetButton = document.getElementById("reset-button") as Element;
 
 // make players[]
 const players: Array<Player> = [
-  { name: "Player1", symbol: "x", score: 0 },
-  { name: "Player2", symbol: "o", score: 0 },
+  { name: "Player1", symbol: "X", score: 0 },
+  { name: "Player2", symbol: "O", score: 0 },
 ];
 
 // game initial state
@@ -69,8 +86,22 @@ let turn = 0;
 let gameEndState = false;
 
 // we display on top the user whose turn is it, if a player won the game or if it was a draw.
-const currentPlayerText = `The current player is: ${players[0].name}`;
-currentPlayerElement.textContent = currentPlayerText;
+const currentPlayerText = `Next:<br> ${players[0].name}`;
+currentPlayerElement.innerHTML = currentPlayerText;
+
+// create a function that will display players current information
+function infoPlayersDisplay() {
+  for (let player in players) {
+    // create paragraph
+    const playerInfo = document.createElement("p");
+
+    currentScorePlayers.appendChild(playerInfo);
+
+    playerInfo.innerHTML = `${players[player].name}<br>Symbol: ${players[player].symbol} <br>Score: ${players[player].score}`;
+
+    playerInfo.classList.add(...playerInfoStyling);
+  }
+}
 
 // tracking the game from the initial state
 let gameState: Record<string, CellState> = {};
@@ -99,8 +130,8 @@ function didWin() {
       cell3.markedBy == cell1.markedBy;
 
     if (winner) {
-      return true;
       displayWinner();
+      return true;
     }
   }
 }
@@ -110,8 +141,8 @@ gameGrid?.classList.add(...gridStyling);
 
 // create function that displays a congratulatory message to the winner
 function displayWinner() {
-  const winMessage = `You won ${players[turn].name}, congratulations!!`;
-  currentPlayerElement.textContent = winMessage;
+  const winMessage = `${players[turn].name}<br>won!!`;
+  currentPlayerElement.innerHTML = winMessage;
 }
 
 // create a function that will create a grid
@@ -154,13 +185,15 @@ function makeMyGrid() {
             cellState.markedBy = currentPlayer.name;
 
             // update the cell to render the symbol on the tic tac toe
-            cell.innerHTML = `<div class="flex justify-center items-center h-full"><p class="text-5xl">${currentPlayer.symbol}</p></div>`;
+            cell.innerHTML = `<div class="flex justify-center items-center h-full"><p class="text-4xl">${currentPlayer.symbol}</p></div>`;
 
             // bring the function for checking win condition
             const gameWinner = didWin();
 
             if (gameWinner) {
-              displayWinner();
+              players[turn].score++;
+              currentScorePlayers.innerHTML = "";
+              infoPlayersDisplay();
               gameEndState = true;
               return;
             }
@@ -170,15 +203,15 @@ function makeMyGrid() {
 
             const nextPlayer = players[turn];
 
-            currentPlayerElement.textContent = `The current player is: ${nextPlayer.name}`;
+            currentPlayerElement.innerHTML = `Next:<br> ${nextPlayer.name}`;
 
             resetButton.addEventListener("click", () => {
               resetGrid();
               makeMyGrid();
+              infoPlayersDisplay();
             });
           }
         }
-        console.log(`click ${id}`);
       });
     }
   }
@@ -190,10 +223,12 @@ function resetGrid() {
   } */
 
   gameGrid.innerHTML = "";
+  currentScorePlayers.innerHTML = "";
   gameEndState = false;
   turn = 0;
-  currentPlayerElement.textContent = currentPlayerText;
+  currentPlayerElement.innerHTML = currentPlayerText;
 }
 
 // call the function to create the grid
 makeMyGrid();
+infoPlayersDisplay();
