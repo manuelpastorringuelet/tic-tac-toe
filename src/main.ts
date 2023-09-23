@@ -22,11 +22,6 @@ function coordToId(coord: Coordinates): `${number}-${number}` {
   return `${row}-${col}`;
 }
 
-function idToCoord(id: `${number}-${number}`): Coordinates {
-  const [row, col] = id.split("-");
-  return [parseInt(row), parseInt(col)];
-}
-
 // define the grid size
 const gridSize = 3;
 
@@ -134,6 +129,9 @@ function didWin() {
       return true;
     }
   }
+
+  // No winner found, return false
+  return false;
 }
 
 // add some styling to the grid-container
@@ -171,7 +169,7 @@ function makeMyGrid() {
       gameGrid?.appendChild(cell);
 
       // add event listeners to the cells
-      cell.addEventListener("click", (event) => {
+      cell.addEventListener("click", () => {
         if (!gameEndState) {
           // need to know whose turn is it
           const currentPlayer = players[turn];
